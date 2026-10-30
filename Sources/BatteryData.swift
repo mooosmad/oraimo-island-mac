@@ -75,13 +75,3 @@ final class SystemBatteryReader {
         }
     }
 }
-
-enum OraimoProduct: Equatable {
-    case spaceBuds, boomPop
-    init(name: String) {
-        self = name.localizedCaseInsensitiveContains("boompop") ? .boomPop : .spaceBuds
-    }
-    var symbol: String { self == .boomPop ? "headphones" : "earbuds" }
-    var asset: String { self == .boomPop ? "boompop-pro" : "spacebuds-lite-2" }
-    var photoDescription: String { self == .boomPop ? "Casque oraimo BoomPop Pro" : "oraimo SpaceBuds Lite 2 et leur boîtier" }
-}

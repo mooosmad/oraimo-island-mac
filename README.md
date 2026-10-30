@@ -21,7 +21,7 @@ Oraimo Island reconnaît les appareils Oraimo appairés à ton Mac et affiche un
 
 - **À la connexion** : popup pendant environ **6 secondes**, puis seule l’icône reste dans la barre des menus.
 - **À la déconnexion** : message pendant environ **4 secondes**, puis l’icône disparaît si aucun Oraimo n’est connecté. La surveillance continue en arrière-plan.
-- **Bonne icône, bonne photo** : écouteurs pour SpaceBuds Lite 2 ; casque pour BoomPop Pro.
+- **Présentation adaptée** : écouteurs pour SpaceBuds Lite 2 ; casque pour BoomPop Pro ; pictogramme de montre pour Watch 6 Nano.
 - **Batteries indépendantes** : une mesure d’un appareil n’est jamais réutilisée pour l’autre. Les valeurs inconnues restent masquées.
 - **Menu discret** : afficher la popup, choisir l’appareil, personnaliser sa photo, consulter le diagnostic ou quitter.
 
@@ -41,7 +41,8 @@ Il s’agit d’une app de barre des menus : **aucune fenêtre principale ni ic�
 | Système | **macOS 14 Sonoma ou plus récent** |
 | Processeur | **Apple Silicon et Intel**, même DMG universel |
 | Modèles testés | **oraimo SpaceBuds Lite 2** et **oraimo BoomPop Pro** |
-| Autres Oraimo | Détection par nom contenant « oraimo » ; batterie et visuel non garantis |
+| Watch 6 Nano (OSW-807N) | Reconnaissance du nom « oraimo Watch 6 Nano », y compris son suffixe ; batterie non confirmée |
+| Autres Oraimo | Détection par nom contenant « oraimo » ; présentation générique pour les modèles non reconnus |
 | Machine sans encoche | Compatible : popup centrée en haut de l’écran |
 | Windows / Linux / iPhone | Non inclus dans ce dépôt ni dans ce DMG |
 
@@ -78,6 +79,14 @@ Tu peux laisser l’app ouverte en arrière-plan. Quand un Oraimo est connecté,
 Si aucun appareil n’est connecté, l’icône est volontairement cachée. Pour retrouver la popup, **rouvre Oraimo Island depuis Applications** ; cela ne crée pas une seconde instance.
 
 Le bouton **Fermer** masque la popup. Le menu **Quitter Oraimo Island** arrête la surveillance. Pour ouvrir automatiquement l’app à la connexion de ta session Mac, ajoute-la toi-même dans **Réglages Système → Général → Ouverture et extensions → Ouvrir avec la session** (le nom de la rubrique peut varier selon macOS).
+
+## Watch 6 Nano (OSW-807N)
+
+La montre doit être appairée et connectée au Mac. Son nom Bluetooth doit conserver « oraimo Watch 6 Nano » ; le suffixe propre à l’appareil est accepté. Le menu **Appareils Oraimo** permet de sélectionner la montre ou un autre appareil par son identité Bluetooth, même si deux appareils portent le même nom. **Sélection automatique** rétablit le choix selon la sortie audio ou les appareils disponibles.
+
+La popup utilise un pictogramme système de montre, et les messages « Montre connectée » / « Montre déconnectée ». Tu peux importer une photo dédiée à ce modèle. Les modèles Oraimo inconnus ne réutilisent plus la photo des SpaceBuds.
+
+Lors du diagnostic matériel initial, macOS reconnaissait la Watch 6 Nano comme une montre connectée, mais ne fournissait aucun niveau de batterie dans son rapport Bluetooth. La batterie reste masquée en l’absence de mesure réelle. Les sources de lecture existantes sont conservées ; aucun protocole propriétaire n’est ajouté. Le support ne comprend ni les données de santé, ni les notifications du téléphone, ni la synchronisation avec Oraimo Health.
 
 ## Batterie : ce qui est réellement disponible
 

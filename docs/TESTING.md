@@ -24,3 +24,11 @@ Le retrait temporisé de la popup et la visibilité de l’icône ont aussi ét�
 - Relevés de batterie basse, import et réinitialisation d’une photo personnalisée.
 
 Les différences de firmware et de version de macOS peuvent affecter les sources de batterie privées. Une compilation universelle ne remplace pas ces essais matériels.
+
+## Contribution Watch 6 Nano — OSW-807N
+
+- Tests automatisés : reconnaissance du nom avec suffixe et différences de casse ; rejet des modèles voisins ; pictogramme et textes de montre ; ressources photo distinctes ; batterie absente masquée ; zéro explicite accepté ; exclusion des appareils non-Oraimo et des relevés déconnectés ; séparation montre/casque.
+- Diagnostic matériel du 30 octobre 2026 : Watch 6 Nano connectée au Mac, type `Watch`, fabricant `0x0642`, produit `0x0220`. Aucune batterie dans le rapport système. Ces identifiants ne sont pas utilisés seuls pour reconnaître le modèle, leur unicité n’étant pas établie.
+- Vérifié sur le Mac avec la montre connectée : lancement de la version compilée, popup « Montre connectée », nom réel, pictogramme de montre et absence de champ batterie. Tests automatisés et compilation universelle arm64/x86_64 réussis.
+- À valider physiquement : cycle connexion/déconnexion, coexistence avec un casque Oraimo, sélection par le menu, import/réinitialisation de la photo, et disponibilité éventuelle de batterie par les sources existantes.
+- Les fixtures utilisent des adresses fictives. Aucun numéro de série ni adresse Bluetooth réelle n’est versionné.
