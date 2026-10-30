@@ -7,6 +7,7 @@
 ![macOS](https://img.shields.io/badge/macOS-14%2B-black?logo=apple)
 ![Architecture](https://img.shields.io/badge/Mac-Apple%20Silicon%20%2B%20Intel-green)
 ![Version](https://img.shields.io/github/v/release/mooosmad/oraimo-island-mac)
+[![Licence MIT](https://img.shields.io/badge/licence-MIT-blue)](LICENSE)
 
 ### [Télécharger le DMG pour Mac](https://github.com/mooosmad/oraimo-island-mac/releases/latest/download/Oraimo-Island-macOS-universal.dmg)
 
@@ -137,3 +138,12 @@ Pas de serveur, de compte, de télémétrie ou de micro. Les lectures Bluetooth 
 Les noms et images de produits identifient les appareils compatibles ; ils appartiennent à leurs titulaires respectifs. Projet indépendant, **sans affiliation avec Oraimo ou Apple**.
 
 Pour désinstaller : quitte l’app et supprime Oraimo Island de ton dossier Applications. Tu peux également supprimer son dossier Application Support si tu veux effacer tes photos personnalisées.
+
+
+## Licence et contributions
+
+Le **code et la documentation sont open source sous licence [MIT](LICENSE)**. Tu peux les utiliser, modifier et redistribuer, en conservant la notice de copyright et le texte de la licence. Le logiciel est fourni sans garantie.
+
+Les images de produits et les marques tierces ne sont pas couvertes par la licence MIT du code ; voir [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+Pour contribuer : fais un fork, crée une branche, lance `./Tests/run.sh`, puis ouvre une pull request vers `main`. Décris le changement et les vérifications effectuées. Toute contribution de code ou de documentation doit pouvoir être publiée sous la licence MIT du projet ; identifie séparément les éventuelles ressources tierces.
