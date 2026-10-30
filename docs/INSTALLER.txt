@@ -1,0 +1,21 @@
+Oraimo Island pour Mac
+=====================
+macOS 14 ou plus récent — Apple Silicon et Intel
+
+1. Glisse Oraimo Island.app vers le raccourci Applications.
+2. Éjecte le disque Oraimo Island.
+3. Ouvre Oraimo Island depuis Applications.
+4. Autorise Bluetooth si macOS le demande.
+5. Connecte tes Oraimo au Mac.
+
+Popup connexion : environ 6 secondes, puis icône dans la barre des menus.
+Déconnexion : environ 4 secondes, puis l’icône disparaît.
+L’app reste en arrière-plan jusqu’à Quitter.
+
+Cette version est signée ad hoc et non notarisée par Apple.
+Si macOS bloque cette app de test, consulte la procédure détaillée du README.
+Ne désactive pas les protections globales de ton Mac.
+
+Téléchargements et aide :
+https://github.com/mooosmad/oraimo-island-mac
+https://github.com/mooosmad/oraimo-island-mac/issues
