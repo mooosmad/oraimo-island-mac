@@ -21,6 +21,7 @@ mkdir -p "$STAGING/Contents/MacOS" "$STAGING/Contents/Resources"
 xcrun lipo -create "$BUILD_DIR/OraimoIsland-arm64" "$BUILD_DIR/OraimoIsland-x86_64" -output "$STAGING/Contents/MacOS/OraimoIsland"
 cp "$ROOT/Resources/Info.plist" "$STAGING/Contents/Info.plist"
 cp "$ROOT/Resources/"*.png "$ROOT/Resources/"*.icns "$STAGING/Contents/Resources/"
+chmod -R a+rX "$STAGING"
 if [[ -n "${SIGNING_IDENTITY:-}" ]]; then
   codesign --force --options runtime --timestamp --sign "$SIGNING_IDENTITY" "$STAGING"
 else
