@@ -228,11 +228,16 @@ struct IslandView: View {
                 VStack(spacing: 7) {
                     if let photo = model.photo {
                         Image(nsImage: photo).resizable().scaledToFit().frame(width: 270, height: 220).accessibilityLabel(model.product.photoDescription)
-                    } else if model.product == .boomPop {
-                        Image(systemName: "headphones").font(.system(size: 105, weight: .light)).foregroundStyle(.gray).frame(width: 270, height: 220)
-                    } else { CaseArt() }
-                    Text(model.device?.name ?? "SpaceBuds Lite 2").font(.system(size: 21, weight: .semibold))
-                    Text(model.connected ? "Connectés à ton Mac" : "Connecte tes écouteurs en Bluetooth")
+                    } else if model.product == .spaceBuds {
+                        CaseArt()
+                    } else {
+                        Image(systemName: model.product.symbol)
+                            .font(.system(size: 105, weight: .light)).foregroundStyle(.gray)
+                            .frame(width: 270, height: 220)
+                            .accessibilityLabel(model.product.photoDescription)
+                    }
+                    Text(model.device?.name ?? "Appareil Oraimo").font(.system(size: 21, weight: .semibold))
+                    Text(model.connected ? model.product.connectedDescription : model.product.connectionPrompt)
                         .font(.system(size: 13)).foregroundStyle(.gray)
                     if let levels = model.device?.levels, !levels.fields.isEmpty {
                         HStack(spacing: 0) {
@@ -272,6 +277,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var monitor: BluetoothMonitor!
     var panel: IslandPanel!
     var status: NSStatusItem!
+    let devicesMenu = NSMenu()
     var collapseTask: DispatchWorkItem?
     var lowBatteryWarned = false
     var screenObserver: NSObjectProtocol?
@@ -298,8 +304,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         item(menu, "Rétablir la photo de cet appareil", #selector(resetPhoto))
         item(menu, "État des appareils et batteries…", #selector(diagnostics))
         item(menu, "Explorer les batteries BLE (12 s)", #selector(exploreBattery))
-        item(menu, "Afficher les SpaceBuds", #selector(selectSpaceBuds))
-        item(menu, "Afficher le BoomPop Pro", #selector(selectBoomPop))
+        let devicesItem = NSMenuItem(title: "Appareils Oraimo", action: nil, keyEquivalent: "")
+        devicesItem.submenu = devicesMenu
+        menu.addItem(devicesItem)
         menu.addItem(.separator())
         item(menu, "Quitter Oraimo Island", #selector(quit), key: "q")
         status.menu = menu
@@ -326,13 +333,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     func update(_ snapshot: DeviceSnapshot?) {
         let wasConnected = model.connected
+        let previousProduct = model.product
         let changedIdentity = model.device?.address != snapshot?.address
         if changedIdentity { lowBatteryWarned = false }
         model.device = snapshot
-        if changedIdentity { loadPhoto() }
+        if changedIdentity || previousProduct != model.product { loadPhoto() }
         refreshStatus(monitor.inventory)
         if panel.isVisible { position() }; model.preview = false; model.route = BluetoothMonitor.outputName()
-        model.headline = snapshot?.connected == true ? "Oraimo connectés" : "Oraimo déconnectés"
+        model.headline = snapshot?.connected == true ? model.product.connectionHeadline : model.product.disconnectionHeadline
         if model.connected && (!wasConnected || changedIdentity) { present(expanded: true); scheduleDismiss(after: 6) }
         else if !model.connected && wasConnected {
             lowBatteryWarned = false; present(expanded: false)
@@ -382,7 +390,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     @objc func show() {
         model.preview = false
-        model.headline = model.connected ? "Oraimo connectés" : "En attente de tes Oraimo"
+        model.headline = model.connected ? model.product.connectionHeadline : "En attente de tes Oraimo"
         present(expanded: true); scheduleDismiss(after: 6)
     }
     @objc func preview() {
@@ -401,6 +409,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         } catch { alert("Photo non enregistrée", error.localizedDescription) }
     }
     func refreshStatus(_ inventory: [DeviceSnapshot]) {
+        refreshDevicesMenu(inventory)
         let connected = inventory.filter { $0.connected }
         status.isVisible = !connected.isEmpty
         let active = connected.first(where: { $0.address == model.device?.address })
@@ -418,11 +427,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return NSImage(contentsOf: url)
     }
     @objc func resetPhoto() { try? FileManager.default.removeItem(at: customPhotoURL); model.photo = bundledPhoto(); show() }
-    @objc func selectSpaceBuds() { selectDevice("spacebuds") }
-    @objc func selectBoomPop() { selectDevice("boompop") }
-    func selectDevice(_ name: String) {
-        monitor.selectedAddress = monitor.inventory.first(where: { $0.name.localizedCaseInsensitiveContains(name) })?.address
-        monitor.poll(); show()
+    func refreshDevicesMenu(_ inventory: [DeviceSnapshot]) {
+        devicesMenu.removeAllItems()
+        let automatic = NSMenuItem(title: "Sélection automatique", action: #selector(selectDevice(_:)), keyEquivalent: "")
+        automatic.target = self
+        automatic.state = monitor.selectedAddress == nil ? .on : .off
+        devicesMenu.addItem(automatic)
+        for device in inventory {
+            let homonyms = inventory.filter { $0.name.caseInsensitiveCompare(device.name) == .orderedSame }
+            let suffix = homonyms.count > 1 ? " · …" + device.address.suffix(4) : ""
+            let title = device.name + suffix + (device.connected ? " · connecté" : " · déconnecté")
+            let entry = NSMenuItem(title: title, action: #selector(selectDevice(_:)), keyEquivalent: "")
+            entry.target = self
+            entry.representedObject = device.address
+            entry.state = monitor.selectedAddress == device.address ? .on : .off
+            devicesMenu.addItem(entry)
+        }
+    }
+    @objc func selectDevice(_ sender: NSMenuItem) {
+        monitor.selectedAddress = sender.representedObject as? String
+        monitor.poll()
+        refreshDevicesMenu(monitor.inventory)
+        show()
     }
     @objc func exploreBattery() { monitor.explore() }
     @objc func diagnostics() {
