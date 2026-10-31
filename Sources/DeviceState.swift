@@ -15,13 +15,13 @@ struct DeviceSnapshot: Equatable {
 enum DeviceSelection {
     static func current(in inventory: [DeviceSnapshot], selected: String?, route: String, previous: String?) -> DeviceSnapshot? {
         let connected = inventory.filter { $0.connected }
-        return connected.first(where: { $0.address == selected })
-            ?? connected.first(where: { $0.name.caseInsensitiveCompare(route) == .orderedSame })
-            ?? connected.first(where: { $0.address == previous })
-            ?? connected.first
-            ?? inventory.first(where: { $0.address == previous })
-            ?? inventory.first(where: { $0.address == selected })
-            ?? inventory.first
+        if let device = connected.first(where: { $0.address == selected }) { return device }
+        if let device = connected.first(where: { $0.name.caseInsensitiveCompare(route) == .orderedSame }) { return device }
+        if let device = connected.first(where: { $0.address == previous }) { return device }
+        if let device = connected.first { return device }
+        if let device = inventory.first(where: { $0.address == previous }) { return device }
+        if let device = inventory.first(where: { $0.address == selected }) { return device }
+        return inventory.first
     }
 
     static func validSelection(_ selected: String?, in inventory: [DeviceSnapshot]) -> String? {
