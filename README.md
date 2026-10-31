@@ -51,17 +51,20 @@ La grande popup et le compact sont deux états du même panneau, centré en haut
 
 *Ces rendus illustrent les états successifs, pas des fenêtres affichées simultanément. Les pourcentages sont des exemples ; les données absentes restent masquées. Une déconnexion ne signifie pas « batterie à 0 % ».*
 
-## Mises à jour
+## Mises à jour intégrées (0.4.0+)
 
-À partir de la version **0.3.0**, l’app vérifie la dernière release stable publiée sur GitHub au lancement, puis au maximum une fois par jour tant qu’elle tourne. Une nouvelle version est proposée une seule fois avec **Télécharger**, **Plus tard** ou **Ignorer cette version**.
+La fenêtre de mise à jour reste dans Oraimo Island : **Installer la mise à jour → progression du téléchargement → Installer et relancer**. Sparkle vérifie la signature de l’archive avant de l’ouvrir, remplace l’app puis la redémarre. Il n’est plus nécessaire d’ouvrir GitHub ou de déplacer un DMG dans le Finder pour les mises à jour suivantes.
 
-Dans le menu Oraimo Island : **Rechercher des mises à jour…** force une vérification, même pour une version ignorée ; **Vérifier automatiquement les mises à jour** active ou désactive la vérification en arrière-plan. Le menu est accessible lorsqu’un Oraimo est connecté.
+- Vérification automatique au lancement et environ toutes les heures pendant que l’app tourne ; une connexion d’appareil réévalue l’échéance sans retarder la prochaine vérification.
+- **Rechercher des mises à jour…** dans le menu permet de vérifier immédiatement. Le menu est accessible lorsqu’un Oraimo est connecté ou qu’une mise à jour est proposée.
+- **Vérifier automatiquement les mises à jour** permet d’activer/désactiver la vérification. Le choix des utilisateurs des versions précédentes est conservé.
+- Lorsqu’une mise à jour est proposée, une icône avec badge apparaît temporairement dans le Dock et le menu reste accessible même sans écouteurs connectés. Clique sur l’icône pour retrouver la fenêtre.
 
-Le téléchargement s’ouvre dans ton navigateur. Quitte l’app, ouvre le nouveau DMG et remplace l’app dans **Applications**, puis relance-la. L’app ne remplace jamais ses fichiers automatiquement.
+La fenêtre permet de reporter ou d’ignorer une version. Le téléchargement et l’installation restent soumis au choix de l’utilisateur ; une autorisation macOS peut être demandée si le dossier d’installation la nécessite.
 
-**Si tu utilises la v0.2.0 ou une version antérieure**, installe une première fois la version **0.3.0 ou ultérieure** depuis le lien du README pour bénéficier des alertes suivantes.
+**Migration depuis 0.3.1 ou une version antérieure :** installe une dernière fois la **0.4.0 ou ultérieure** via le DMG. L’ancien code ne peut pas se remplacer rétroactivement. Ensuite, les versions publiées dans le flux signé s’installent depuis l’app.
 
-La vérification contacte l’API publique de GitHub ; aucun nom d’appareil, adresse Bluetooth ou niveau de batterie n’est envoyé. Sans réseau, les vérifications automatiques restent silencieuses ; la vérification manuelle signale l’échec.
+La vérification utilise le flux public du projet hébergé sur GitHub et ses fichiers de release, sans navigateur. Aucun nom d’appareil, adresse Bluetooth ou niveau de batterie n’est transmis. Le profilage système Sparkle est désactivé. Les vérifications périodiques ne sont pas des notifications instantanées envoyées par un serveur.
 
 ## Compatibilité
 

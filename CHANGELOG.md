@@ -1,5 +1,13 @@
 # Historique
 
+## 0.4.0 — 31 octobre 2026
+
+- Mise à jour intégrée avec Sparkle : téléchargement avec progression, vérification de signature Ed25519, installation et relance depuis l’app.
+- Suppression de la redirection vers le navigateur pour les mises à jour suivantes.
+- Vérification au lancement et toutes les heures au lieu d’une attente pouvant atteindre 24 heures.
+- Conservation du choix de désactivation des vérifications automatiques ; suppression de l’ancien marquage permanent des versions déjà signalées.
+- Archive de mise à jour et procédure de publication du flux signées.
+
 ## 0.3.1 — 31 octobre 2026
 
 - La grande popup se replie en compact quand les Oraimo deviennent la sortie audio, même si elle est encore visible.

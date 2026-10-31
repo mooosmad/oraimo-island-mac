@@ -39,14 +39,16 @@ Les différences de firmware et de version de macOS peuvent affecter les sources
 - À valider physiquement : cycle connexion/déconnexion, coexistence avec un casque Oraimo, sélection par le menu, import/réinitialisation de la photo, et disponibilité éventuelle de batterie par les sources existantes.
 - Les fixtures utilisent des adresses fictives. Aucun numéro de série ni adresse Bluetooth réelle n’est versionné.
 
-## Popup simplifiée et mises à jour
+## Mise à jour intégrée (0.4.0)
 
-- Vérifier la photo et le nom unique sur SpaceBuds, BoomPop et montre ; garder masqués les niveaux absents. Avec gauche/droite/boîtier, chaque valeur doit avoir son libellé.
-- Vérifier les statuts de connexion, déconnexion, batterie faible et changement de sortie audio, puis leur disparition automatique (6 / 4 / 3 secondes selon l’événement). La croix doit fermer immédiatement la popup.
-- Menu « Rechercher des mises à jour… » : avec la même version publiée, message « à jour » ; sans réseau, message d’échec. Le mode automatique doit rester silencieux en cas d’échec.
-- Pour tester une vraie version plus récente sans publier de fausse release, compiler une copie temporaire avec un CFBundleShortVersionString inférieur à la release publique. Vérifier « Télécharger » (DMG du dépôt officiel), « Plus tard », « Ignorer cette version » et l’absence d’alertes automatiques répétées pour cette version. Une vérification manuelle doit pouvoir reproposer la version ignorée.
-- Désactiver la vérification automatique dans le menu : aucune requête automatique au prochain lancement. La vérification manuelle doit fonctionner.
-- La v0.2.0 ne possède pas ce mécanisme : ses utilisateurs doivent installer une première fois une version contenant cette fonction.
+- La fenêtre native doit proposer une mise à jour, télécharger sans navigateur, vérifier l’archive puis afficher « Installer et relancer ».
+- Tester le remplacement et le démarrage d’un **nouveau binaire distinct** dans une app isolée ; vérifier un marqueur écrit uniquement par le nouveau binaire. Le scénario a été exécuté localement avec un flux signé et une archive signée sur localhost, puis le build 5 a remplacé le build 4 et redémarré.
+- Le test local autorise HTTP uniquement dans son bundle temporaire. L’app distribuée utilise exclusivement le flux HTTPS de production, exige sa signature et vérifie l’archive avant extraction.
+- Le test de signature doit accepter l’archive intacte et refuser la même archive après modification. Même vérification pour un flux signé modifié.
+- Vérifier les choix de report/annulation, la désactivation des vérifications automatiques et les erreurs réseau. Vérifier la disponibilité du Dock temporaire et du menu lorsqu’une mise à jour est proposée sans Oraimo connecté.
+- `./scripts/verify-bundle.sh` vérifie les deux architectures, la signature du bundle, le lien Sparkle, la configuration de signature et la licence embarquée. La CI l’exécute avant de préparer les archives.
+- Les versions 0.3.1 et antérieures n’ont pas d’installeur intégré : une installation manuelle de migration reste nécessaire.
+- Les versions distribuées restent ad hoc ; le scénario Developer ID/notarisation et les remplacements sur des dossiers nécessitant une autorisation macOS doivent être validés séparément.
 
 ## Transition vers le compact (0.3.1)
 

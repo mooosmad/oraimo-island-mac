@@ -14,11 +14,16 @@ jobs:
         run: ./Tests/run.sh
       - name: Build universal application
         run: ./build.sh
+      - name: Verify updater bundle
+        run: ./scripts/verify-bundle.sh
       - name: Package DMG
         run: ./scripts/package-dmg.sh
+      - name: Package in-app update
+        run: ./scripts/package-update.sh
       - uses: actions/upload-artifact@v4
         with:
           name: Oraimo-Island-macOS-universal
           path: |
             dist/*.dmg
+            dist/*.zip
             dist/SHA256SUMS.txt
