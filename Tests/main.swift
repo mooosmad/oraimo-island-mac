@@ -92,3 +92,14 @@ for changedJSON in [releaseJSON.replacingOccurrences(of: "github.com", with: "ev
     check(invalid.downloadURL == nil && !invalid.isNewer(than: "0.2.0"), "Reject unsafe or unpublished release")
 }
 print("PASS: release version ordering and trusted stable DMG metadata")
+
+
+var presentation = ConnectionPresentation()
+check(presentation.audioDelay(at: 10) == 0, "Audio switching outside connection is immediate")
+presentation.connected(at: 10)
+check(abs(presentation.audioDelay(at: 10) - 1.8) < 0.001, "Already-active audio still leaves time for the photo")
+check(abs(presentation.audioDelay(at: 11) - 0.8) < 0.001, "Audio during connection uses remaining presentation time")
+check(presentation.audioDelay(at: 13) == 0, "Late audio activation immediately shows compact")
+presentation.connected(at: 20)
+check(abs(presentation.audioDelay(at: 20) - 1.8) < 0.001, "Reconnection starts a fresh presentation")
+print("PASS: connection photo to audio compact timing")

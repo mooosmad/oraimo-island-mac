@@ -21,7 +21,7 @@
 
 Oraimo Island reconnaît les appareils Oraimo appairés à ton Mac et affiche une popup près du haut de l’écran. Elle montre la photo du modèle et le niveau de batterie réellement disponible.
 
-- **À la connexion** : popup pendant environ **6 secondes**, puis seule l’icône reste dans la barre des menus.
+- **À la connexion Bluetooth** : grande popup avec photo. Si les Oraimo deviennent la sortie audio, elle se replie en compact après au moins **1,8 seconde**, puis disparaît après **3 secondes**. Sinon, la grande popup disparaît après environ **6 secondes**.
 - **À la déconnexion** : message pendant environ **4 secondes**, puis l’icône disparaît si aucun Oraimo n’est connecté. La surveillance continue en arrière-plan.
 - **Présentation adaptée** : écouteurs pour SpaceBuds Lite 2 et SpaceBuds Neo ; casque pour BoomPop Pro ; pictogramme de montre pour Watch 6 Nano.
 - **Batteries indépendantes** : une mesure d’un appareil n’est jamais réutilisée pour l’autre. Les valeurs inconnues restent masquées.
@@ -29,11 +29,27 @@ Oraimo Island reconnaît les appareils Oraimo appairés à ton Mac et affiche un
 
 Il s’agit d’une app de barre des menus : **aucune fenêtre principale ni icône permanente dans le Dock**. L’encoche n’est pas nécessaire. Le nom « Island » décrit l’interface de cette app, pas une fonction système Apple.
 
+## Les nouveaux designs
+
+### Connexion, sortie audio et déconnexion
+
 <p align="center">
-  <img src="docs/popup-preview.png" width="900" alt="Nouvelle popup SpaceBuds Neo : photo, nom unique, statut et batterie ; variante compacte" />
+  <img src="docs/popup-transitions.png" width="950" alt="Grande popup de connexion SpaceBuds Neo, statut compact Audio sur ce Mac et statut compact Déconnectés, avec texte centré" />
 </p>
 
-*Aperçu de la nouvelle interface, avec un niveau de batterie d’exemple. Les valeurs réellement absentes restent masquées.*
+La grande popup et le compact sont deux états du même panneau, centré en haut de l’écran. Le compact affiche le nom et le statut au centre, avec l’icône à gauche et le pourcentage à droite. À la déconnexion, le pourcentage disparaît et le message reste environ **4 secondes**.
+
+**La sortie audio sélectionnée ne prouve pas que les écouteurs sont dans les oreilles ou qu’une musique joue.** Les données actuellement lues ne donnent ni l’ouverture du boîtier ni la présence dans les oreilles. L’app utilise uniquement la connexion Bluetooth et le choix de la sortie audio par macOS ; elle ne simule pas ces capteurs.
+
+### Batterie faible
+
+<p align="center">
+  <img src="docs/low-battery.png" width="600" alt="Compact de batterie faible SpaceBuds Neo : nom centré, statut Batterie faible et 15 % en rouge" />
+</p>
+
+À **20 % ou moins**, le niveau apparaît en rouge. L’alerte de batterie faible utilise le niveau d’écoute le plus bas disponible (global, gauche ou droit), sans utiliser le boîtier comme niveau des écouteurs. Le compact d’alerte disparaît après **4 secondes** ; une popup de connexion déjà ouverte conserve sa présentation au lieu d’être interrompue.
+
+*Ces rendus illustrent les états successifs, pas des fenêtres affichées simultanément. Les pourcentages sont des exemples ; les données absentes restent masquées. Une déconnexion ne signifie pas « batterie à 0 % ».*
 
 ## Mises à jour
 

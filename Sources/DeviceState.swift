@@ -49,3 +49,13 @@ struct LowBatteryAlert {
 
     mutating func reset() { warned = false }
 }
+
+/// Use the audio route, not an inferred in-ear sensor. Keep the initial photo visible briefly.
+struct ConnectionPresentation {
+    private var connectedAt: TimeInterval?
+    mutating func connected(at time: TimeInterval) { connectedAt = time }
+    func audioDelay(at time: TimeInterval) -> TimeInterval {
+        guard let connectedAt else { return 0 }
+        return max(0, connectedAt + 1.8 - time)
+    }
+}

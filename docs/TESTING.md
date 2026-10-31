@@ -47,3 +47,12 @@ Les différences de firmware et de version de macOS peuvent affecter les sources
 - Pour tester une vraie version plus récente sans publier de fausse release, compiler une copie temporaire avec un CFBundleShortVersionString inférieur à la release publique. Vérifier « Télécharger » (DMG du dépôt officiel), « Plus tard », « Ignorer cette version » et l’absence d’alertes automatiques répétées pour cette version. Une vérification manuelle doit pouvoir reproposer la version ignorée.
 - Désactiver la vérification automatique dans le menu : aucune requête automatique au prochain lancement. La vérification manuelle doit fonctionner.
 - La v0.2.0 ne possède pas ce mécanisme : ses utilisateurs doivent installer une première fois une version contenant cette fonction.
+
+## Transition vers le compact (0.3.1)
+
+- Connecter les Oraimo avec la sortie audio déjà sélectionnée : grande photo pendant au moins 1,8 s, repli en compact, puis disparition après 3 s.
+- Connecter sans sélectionner leur sortie : grande popup pendant environ 6 s. Sélectionner ensuite les Oraimo comme sortie : compact pendant 3 s.
+- Sélectionner la sortie audio pendant la grande popup : elle doit se replier sans créer une seconde fenêtre.
+- Déconnecter pendant le délai de 1,8 s, fermer via la croix ou ouvrir manuellement un autre appareil : la transition en attente doit être annulée et ne pas réafficher l’ancien appareil.
+- Vérifier le centrage du nom/statut sur les deux tailles, avec 100 %, sans batterie et lors de la déconnexion ; le compact ne doit pas conserver de batterie périmée à droite.
+- Rappel : ces événements ne testent pas un capteur d’ouverture du boîtier ni de présence dans les oreilles.

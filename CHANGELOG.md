@@ -1,5 +1,13 @@
 # Historique
 
+## 0.3.1 — 31 octobre 2026
+
+- La grande popup se replie en compact quand les Oraimo deviennent la sortie audio, même si elle est encore visible.
+- Une courte présentation de la photo reste visible si l’audio est déjà sélectionné à la connexion.
+- Statut compact plus étroit, texte centré et espaces équilibrés entre icône et batterie.
+- Recentrage du panneau conservé lors du passage entre les deux tailles.
+- README illustré avec les états de connexion, audio, déconnexion et batterie faible, et distinction explicite entre sortie audio et détection dans les oreilles.
+
 ## 0.3.0 — 31 octobre 2026
 
 - Popup épurée : nom du produit affiché une seule fois, statut court, photo centrale et batterie sans doublon.

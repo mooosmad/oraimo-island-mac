@@ -265,18 +265,27 @@ struct IslandView: View {
                     }
                 }.padding(.top, 4).padding(.bottom, 26)
             } else {
-                HStack(spacing: 12) {
-                    Image(systemName: model.product.symbol).font(.system(size: 22)).foregroundStyle(model.connected ? .white : .gray)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(displayName).font(.system(size: 13, weight: .semibold)).lineLimit(1)
-                        Text(eventStatus).font(.system(size: 11)).foregroundStyle(.gray).lineLimit(1)
-                    }
-                    Spacer(minLength: 0)
-                    if let battery = model.device?.lowestListeningLevel { Text("\(battery) %").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(battery <= 20 ? .red : .green) }
-                }.padding(.horizontal, 20).frame(height: 60).contentShape(Rectangle()).onTapGesture(perform: toggle)
+                ZStack {
+                    VStack(spacing: 3) {
+                        Text(displayName).font(.system(size: 12, weight: .semibold)).lineLimit(1)
+                        Text(eventStatus).font(.system(size: 10, weight: .medium)).foregroundStyle(.gray).lineLimit(1)
+                    }.frame(maxWidth: .infinity).padding(.horizontal, 64)
+                    HStack {
+                        Image(systemName: model.product.symbol).font(.system(size: 22))
+                            .foregroundStyle(model.connected ? .white : .gray).frame(width: 40)
+                        Spacer(minLength: 0)
+                        if model.connected, let battery = model.device?.lowestListeningLevel {
+                            Text("\(battery) %").font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .foregroundStyle(battery <= 20 ? .red : .green).frame(width: 40)
+                        } else {
+                            Image(systemName: model.connected ? "checkmark" : "xmark")
+                                .font(.system(size: 12, weight: .semibold)).foregroundStyle(.gray).frame(width: 40)
+                        }
+                    }.padding(.horizontal, 15)
+                }.frame(height: 58).contentShape(Rectangle()).onTapGesture(perform: toggle)
             }
         }
-        .foregroundStyle(.white).frame(width: 390)
+        .foregroundStyle(.white).frame(width: model.expanded ? 390 : 330)
         .background(.black, in: RoundedRectangle(cornerRadius: 30))
         .overlay(RoundedRectangle(cornerRadius: 30).stroke(.white.opacity(0.12), lineWidth: 1))
         .environment(\.colorScheme, .dark)
@@ -296,6 +305,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var status: NSStatusItem!
     let devicesMenu = NSMenu()
     var collapseTask: DispatchWorkItem?
+    var compactTask: DispatchWorkItem?
+    var connectionPresentation = ConnectionPresentation()
     var lowBattery = LowBatteryAlert()
     var screenObserver: NSObjectProtocol?
     var presentationGeneration = 0
@@ -342,8 +353,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         monitor.onRoute = { [weak self] route in
             guard let self, self.model.connected else { return }
             self.model.route = route
-            self.model.headline = route.localizedCaseInsensitiveContains("oraimo") ? "Audio sur tes Oraimo" : "Sortie audio modifiée"
-            if !self.panel.isVisible {
+            let isActive = route.caseInsensitiveCompare(self.model.device?.name ?? "") == .orderedSame
+            if !self.model.headline.hasPrefix("Batterie faible") {
+                self.model.headline = isActive ? "Audio sur tes Oraimo" : "Sortie audio modifiée"
+            }
+            if isActive {
+                self.scheduleAudioCompact()
+            } else if !self.panel.isVisible {
                 self.present(expanded: false); self.scheduleDismiss(after: 3)
             }
         }
@@ -366,7 +382,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if panel.isVisible { position() }; model.route = BluetoothMonitor.outputName()
         if model.connected && (!wasConnected || changedIdentity) {
             model.preview = false; model.headline = model.product.connectionHeadline
+            connectionPresentation.connected(at: ProcessInfo.processInfo.systemUptime)
             present(expanded: true); scheduleDismiss(after: 6)
+            if model.route.caseInsensitiveCompare(snapshot?.name ?? "") == .orderedSame { scheduleAudioCompact() }
         } else if !model.connected && wasConnected {
             lowBattery.reset(); model.preview = false; model.headline = model.product.disconnectionHeadline
             present(expanded: false); scheduleDismiss(after: 4)
@@ -380,17 +398,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func position() {
         guard let screen = NSScreen.screens.first(where: { $0.safeAreaInsets.top > 0 }) ?? NSScreen.main else { return }
         let hasLevels = !(model.device?.levels.fields.isEmpty ?? true)
-        let height: CGFloat = model.expanded ? (hasLevels ? 425 : 350) : 60
+        let height: CGFloat = model.expanded ? (hasLevels ? 425 : 350) : 58
+        let width: CGFloat = model.expanded ? 390 : 330
         // Below the physical notch so no text or controls are obscured by the camera.
         let top = screen.frame.maxY - max(screen.safeAreaInsets.top, 8) - 5
-        let frame = NSRect(x: screen.frame.midX - 195, y: top - height, width: 390, height: height)
+        let frame = NSRect(x: screen.frame.midX - width / 2, y: top - height, width: width, height: height)
         panel.setFrame(frame, display: true, animate: panel.isVisible)
     }
     func present(expanded: Bool) {
+        compactTask?.cancel(); compactTask = nil
         collapseTask?.cancel(); presentationGeneration += 1
         panel.alphaValue = 1
         withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) { model.expanded = expanded }
         position(); panel.orderFrontRegardless()
+    }
+    func scheduleAudioCompact() {
+        compactTask?.cancel()
+        let address = model.device?.address
+        let delay = connectionPresentation.audioDelay(at: ProcessInfo.processInfo.systemUptime)
+        let task = DispatchWorkItem { [weak self] in
+            guard let self, self.model.connected, self.model.device?.address == address,
+                  self.model.route.caseInsensitiveCompare(self.model.device?.name ?? "") == .orderedSame else { return }
+            if !self.model.headline.hasPrefix("Batterie faible") { self.model.headline = "Audio sur tes Oraimo" }
+            self.present(expanded: false); self.scheduleDismiss(after: 3)
+        }
+        compactTask = task
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: task)
     }
     func scheduleDismiss(after seconds: TimeInterval) {
         collapseTask?.cancel()
@@ -398,6 +431,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         collapseTask = task; DispatchQueue.main.asyncAfter(deadline: .now() + seconds, execute: task)
     }
     func collapse() {
+        compactTask?.cancel(); compactTask = nil
         collapseTask?.cancel(); presentationGeneration += 1
         let generation = presentationGeneration
         NSAnimationContext.runAnimationGroup({ context in
