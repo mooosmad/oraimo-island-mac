@@ -1,7 +1,8 @@
 # Historique
 
-## À venir
+## 0.2.0 — 31 octobre 2026
 
+- Reconnaissance de la **Watch 6 Nano (OSW-807N)**, icône de montre et sélection des appareils par adresse Bluetooth.
 - Vraie icône d’application : l’ancienne `OraimoIsland.icns` n’était qu’un carré noir. Elle se régénère avec `scripts/make-icon.swift`.
 - Reconnaissance des **oraimo SpaceBuds Neo** : photo du modèle, pictogramme d’écouteurs et photo personnalisable propre au modèle.
 - Le rapport Bluetooth de macOS n’est plus lancé toutes les 30 s quand aucun Oraimo n’est connecté.
