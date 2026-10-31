@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/icon.png" width="128" alt="Icône d’Oraimo Island" />
+
 # Oraimo Island pour Mac
 
 **Une popup à la connexion de tes Oraimo. Une icône discrète le reste du temps.**
@@ -136,6 +138,8 @@ cd oraimo-island-mac
 ./build.sh
 ./scripts/package-dmg.sh
 ```
+
+L’icône `Resources/OraimoIsland.icns` est dessinée par `scripts/make-icon.swift` : `swift scripts/make-icon.swift /tmp/OraimoIsland.iconset && iconutil -c icns /tmp/OraimoIsland.iconset -o Resources/OraimoIsland.icns`.
 
 Résultats dans `dist/` : app universelle, DMG et fichier de sommes SHA-256. Le cache est dans `.build/` ; `ORAIMO_MODULE_CACHE` permet d’en choisir un autre.
 
