@@ -1,5 +1,13 @@
 # Historique
 
+## À venir
+
+- Popup épurée : nom du produit affiché une seule fois, statut court, photo centrale et batterie sans doublon.
+- Fermeture discrète et masquage automatique conservé.
+- Recherche de nouvelles versions stables, proposition de téléchargement et vérification manuelle dans le menu.
+- Désactivation des vérifications automatiques et possibilité d’ignorer une version.
+- Aperçu de la nouvelle présentation et guide de mise à jour dans le README.
+
 ## 0.2.0 — 31 octobre 2026
 
 - Reconnaissance de la **Watch 6 Nano (OSW-807N)**, icône de montre et sélection des appareils par adresse Bluetooth.
