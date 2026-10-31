@@ -30,11 +30,22 @@ Oraimo Island reconnaît les appareils Oraimo appairés à ton Mac et affiche un
 Il s’agit d’une app de barre des menus : **aucune fenêtre principale ni icône permanente dans le Dock**. L’encoche n’est pas nécessaire. Le nom « Island » décrit l’interface de cette app, pas une fonction système Apple.
 
 <p align="center">
-  <img src="docs/boompop.png" width="330" alt="Popup BoomPop Pro avec sa photo et sa batterie" />
-  <img src="docs/spacebuds.png" width="330" alt="Popup SpaceBuds Lite 2 avec sa photo et sa batterie" />
+  <img src="docs/popup-preview.png" width="900" alt="Nouvelle popup SpaceBuds Neo : photo, nom unique, statut et batterie ; variante compacte" />
 </p>
 
-*Captures d’exemples : les pourcentages affichés dépendent de ton appareil.*
+*Aperçu de la nouvelle interface, avec un niveau de batterie d’exemple. Les valeurs réellement absentes restent masquées.*
+
+## Mises à jour
+
+À partir de la prochaine version intégrant cette fonction, l’app vérifie la dernière release stable publiée sur GitHub au lancement, puis au maximum une fois par jour tant qu’elle tourne. Une nouvelle version est proposée une seule fois avec **Télécharger**, **Plus tard** ou **Ignorer cette version**.
+
+Dans le menu Oraimo Island : **Rechercher des mises à jour…** force une vérification, même pour une version ignorée ; **Vérifier automatiquement les mises à jour** active ou désactive la vérification en arrière-plan. Le menu est accessible lorsqu’un Oraimo est connecté.
+
+Le téléchargement s’ouvre dans ton navigateur. Quitte l’app, ouvre le nouveau DMG et remplace l’app dans **Applications**, puis relance-la. L’app ne remplace jamais ses fichiers automatiquement.
+
+**Si tu utilises la v0.2.0 ou une version antérieure**, installe une première fois la nouvelle version depuis le lien du README pour bénéficier des alertes suivantes.
+
+La vérification contacte l’API publique de GitHub ; aucun nom d’appareil, adresse Bluetooth ou niveau de batterie n’est envoyé. Sans réseau, les vérifications automatiques restent silencieuses ; la vérification manuelle signale l’échec.
 
 ## Compatibilité
 

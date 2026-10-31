@@ -79,3 +79,16 @@ check(!alert.shouldWarn(level: 50) && alert.shouldWarn(level: 10), "Warn again a
 alert.reset()
 check(alert.shouldWarn(level: 10), "Reset re-arms the warning")
 print("PASS: low battery threshold, earbuds minimum and re-arming")
+
+check(ReleaseVersion("v0.10.0")! > ReleaseVersion("0.2.0")!, "Versions compare numerically")
+check(ReleaseVersion("1.0.0")! > ReleaseVersion("0.99.9")!, "Major version wins")
+check(ReleaseVersion("0.2.0")! == ReleaseVersion("v0.2.0")!, "Optional v prefix")
+check(ReleaseVersion("0.3.0-beta") == nil && ReleaseVersion("junk") == nil, "Reject malformed and prerelease tags")
+let releaseJSON = #"{"tag_name":"v0.3.0","draft":false,"prerelease":false,"assets":[{"name":"Oraimo-Island-macOS-universal.dmg","browser_download_url":"https://github.com/mooosmad/oraimo-island-mac/releases/download/v0.3.0/Oraimo-Island-macOS-universal.dmg"}]}"#
+let release = try! JSONDecoder().decode(ReleaseInfo.self, from: Data(releaseJSON.utf8))
+check(release.isNewer(than: "0.2.0") && !release.isNewer(than: "0.3.0") && !release.isNewer(than: "0.4.0"), "Only offer newer releases")
+for changedJSON in [releaseJSON.replacingOccurrences(of: "github.com", with: "evil.example"), releaseJSON.replacingOccurrences(of: "\"prerelease\":false", with: "\"prerelease\":true"), releaseJSON.replacingOccurrences(of: "\"draft\":false", with: "\"draft\":true"), releaseJSON.replacingOccurrences(of: "https:", with: "http:")] {
+    let invalid = try! JSONDecoder().decode(ReleaseInfo.self, from: Data(changedJSON.utf8))
+    check(invalid.downloadURL == nil && !invalid.isNewer(than: "0.2.0"), "Reject unsafe or unpublished release")
+}
+print("PASS: release version ordering and trusted stable DMG metadata")

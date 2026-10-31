@@ -202,57 +202,84 @@ struct IslandView: View {
     @ObservedObject var model: IslandModel
     var toggle: () -> Void
     var dismiss: () -> Void
+    var displayName: String {
+        let name = (model.device?.name ?? "Appareil Oraimo")
+            .replacingOccurrences(of: "(?i)^oraimo\\s+", with: "", options: .regularExpression)
+        return name.isEmpty ? "Appareil Oraimo" : name
+    }
+    var eventStatus: String {
+        if model.preview { return "Aperçu" }
+        if model.headline.hasPrefix("Batterie faible") { return "Batterie faible" }
+        if model.headline == "Audio sur tes Oraimo" { return "Audio sur ce Mac" }
+        if model.headline == "Sortie audio modifiée" { return model.headline }
+        if model.device == nil { return "En attente de connexion" }
+        if model.product == .watch6Nano { return model.connected ? "Connectée" : "Déconnectée" }
+        let singular = model.product == .boomPop
+        return model.connected ? (singular ? "Connecté" : "Connectés") : (singular ? "Déconnecté" : "Déconnectés")
+    }
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                Image(systemName: model.product.symbol).font(.system(size: 23)).foregroundStyle(model.connected ? .white : .gray)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(model.headline).font(.system(size: 13, weight: .semibold)).lineLimit(1)
-                    if model.expanded { Text(model.preview ? "APERÇU · aucune connexion simulée" : "ORAIMO ISLAND").font(.system(size: 9, weight: .medium)).tracking(1.6).foregroundStyle(.gray) }
-                }
-                Spacer(minLength: 0)
-                if let battery = model.device?.battery { BatteryRing(value: battery) }
-            }.padding(.horizontal, 22).frame(height: 60).contentShape(Rectangle()).onTapGesture(perform: toggle)
             if model.expanded {
-                VStack(spacing: 7) {
+                HStack {
+                    HStack(spacing: 7) {
+                        Circle().fill(model.connected ? Color.green : Color.gray).frame(width: 5, height: 5)
+                        Text(eventStatus).font(.system(size: 12, weight: .medium)).foregroundStyle(Color(white: 0.75))
+                    }
+                    Spacer()
+                    Button(action: dismiss) {
+                        Image(systemName: "xmark").font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(.gray).frame(width: 25, height: 25).background(.white.opacity(0.08), in: Circle())
+                    }.buttonStyle(.plain).accessibilityLabel("Fermer")
+                }.padding(.horizontal, 22).padding(.top, 18)
+                VStack(spacing: 0) {
                     if let photo = model.photo {
-                        Image(nsImage: photo).resizable().scaledToFit().frame(width: 270, height: 220).accessibilityLabel(model.product.photoDescription)
+                        Image(nsImage: photo).resizable().scaledToFit().frame(width: 220, height: 192).accessibilityLabel(model.product.photoDescription)
                     } else if model.product.isEarbuds {
-                        CaseArt()
+                        CaseArt().frame(height: 192)
                     } else {
-                        Image(systemName: model.product.symbol)
-                            .font(.system(size: 105, weight: .light)).foregroundStyle(.gray)
-                            .frame(width: 270, height: 220)
-                            .accessibilityLabel(model.product.photoDescription)
+                        Image(systemName: model.product.symbol).font(.system(size: 105, weight: .light))
+                            .foregroundStyle(.gray).frame(width: 220, height: 192).accessibilityLabel(model.product.photoDescription)
                     }
-                    Text(model.device?.name ?? "Appareil Oraimo").font(.system(size: 21, weight: .semibold))
-                    Text(model.connected ? model.product.connectedDescription : model.product.connectionPrompt)
-                        .font(.system(size: 13)).foregroundStyle(.gray)
-                    if let levels = model.device?.levels, !levels.fields.isEmpty {
-                        HStack(spacing: 0) {
-                            ForEach(Array(levels.fields.enumerated()), id: \.offset) { index, entry in
-                                if index > 0 { Rectangle().fill(.white.opacity(0.12)).frame(width: 1, height: 28) }
-                                metric(entry.0, "\(entry.1) %")
+                    Text(displayName).font(.system(size: 23, weight: .semibold)).multilineTextAlignment(.center).lineLimit(2).padding(.horizontal, 20).padding(.top, 5)
+                    if model.connected && eventStatus != "Audio sur ce Mac" && model.route.caseInsensitiveCompare(model.device?.name ?? "") == .orderedSame {
+                        Label("Audio sur ce Mac", systemImage: "speaker.wave.2.fill")
+                            .font(.system(size: 12)).foregroundStyle(.gray).padding(.top, 8)
+                    }
+                    if let fields = model.device?.levels.fields, !fields.isEmpty {
+                        HStack(spacing: 22) {
+                            ForEach(Array(fields.enumerated()), id: \.offset) { _, entry in
+                                VStack(spacing: 7) {
+                                    if fields.count > 1 || entry.0 != "BATTERIE" { Text(entry.0).font(.system(size: 9, weight: .medium)).tracking(1).foregroundStyle(.gray) }
+                                    HStack(spacing: 10) {
+                                        ZStack {
+                                            Circle().stroke((entry.1 <= 20 ? Color.red : Color.green).opacity(0.18), lineWidth: 2.5)
+                                            Circle().trim(from: 0, to: CGFloat(entry.1) / 100)
+                                                .stroke(entry.1 <= 20 ? Color.red : Color.green, style: StrokeStyle(lineWidth: 2.5, lineCap: .round)).rotationEffect(.degrees(-90))
+                                            Image(systemName: "battery.100percent").font(.system(size: 12)).foregroundStyle(entry.1 <= 20 ? .red : .green)
+                                        }.frame(width: 32, height: 32)
+                                        Text("\(entry.1) %").font(.system(size: fields.count > 1 ? 15 : 19, weight: .medium, design: .rounded))
+                                    }
+                                }
                             }
-                        }.padding(.top, 17).padding(.bottom, 14)
+                        }.padding(.top, 22).padding(.horizontal, 20)
                     }
-                    if !model.route.isEmpty {
-                        Label(model.route, systemImage: "speaker.wave.2").font(.system(size: 11)).foregroundStyle(.gray).lineLimit(1).padding(.bottom, 8)
+                }.padding(.top, 4).padding(.bottom, 26)
+            } else {
+                HStack(spacing: 12) {
+                    Image(systemName: model.product.symbol).font(.system(size: 22)).foregroundStyle(model.connected ? .white : .gray)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(displayName).font(.system(size: 13, weight: .semibold)).lineLimit(1)
+                        Text(eventStatus).font(.system(size: 11)).foregroundStyle(.gray).lineLimit(1)
                     }
-                    Button("Fermer", action: dismiss).buttonStyle(.plain).font(.system(size: 11)).foregroundStyle(.gray).padding(.bottom, 16)
-                }.transition(.opacity.combined(with: .move(edge: .top)))
+                    Spacer(minLength: 0)
+                    if let battery = model.device?.lowestListeningLevel { Text("\(battery) %").font(.system(size: 13, weight: .medium, design: .rounded)).foregroundStyle(battery <= 20 ? .red : .green) }
+                }.padding(.horizontal, 20).frame(height: 60).contentShape(Rectangle()).onTapGesture(perform: toggle)
             }
         }
         .foregroundStyle(.white).frame(width: 390)
-        .background(.black, in: RoundedRectangle(cornerRadius: model.expanded ? 34 : 30))
-        .overlay(RoundedRectangle(cornerRadius: model.expanded ? 34 : 30).stroke(.white.opacity(0.1), lineWidth: 1))
+        .background(.black, in: RoundedRectangle(cornerRadius: 30))
+        .overlay(RoundedRectangle(cornerRadius: 30).stroke(.white.opacity(0.12), lineWidth: 1))
         .environment(\.colorScheme, .dark)
-    }
-    func metric(_ title: String, _ value: String) -> some View {
-        VStack(spacing: 7) {
-            Text(title).font(.system(size: 9, weight: .medium)).tracking(1.5).foregroundStyle(.gray)
-            Text(value).font(.system(size: 14, weight: .medium, design: .rounded))
-        }.frame(maxWidth: .infinity)
     }
 }
 
@@ -263,6 +290,7 @@ final class IslandPanel: NSPanel {
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let model = IslandModel()
+    let updateChecker = UpdateChecker()
     var monitor: BluetoothMonitor!
     var panel: IslandPanel!
     var status: NSStatusItem!
@@ -298,6 +326,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         devicesItem.submenu = devicesMenu
         menu.addItem(devicesItem)
         menu.addItem(.separator())
+        item(menu, "Rechercher des mises à jour…", #selector(checkUpdates))
+        let automaticUpdates = NSMenuItem(title: "Vérifier automatiquement les mises à jour", action: #selector(toggleUpdates(_:)), keyEquivalent: "")
+        automaticUpdates.target = self; automaticUpdates.state = updateChecker.enabled ? .on : .off
+        menu.addItem(automaticUpdates)
+        menu.addItem(.separator())
         item(menu, "Quitter Oraimo Island", #selector(quit), key: "q")
         status.menu = menu
         screenObserver = NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in self?.position() }
@@ -315,6 +348,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         monitor.poll()
+        updateChecker.start()
         if CommandLine.arguments.contains("--preview") { preview() }
         if CommandLine.arguments.contains("--explore-battery") { DispatchQueue.main.asyncAfter(deadline: .now() + 2) { self.monitor.explore() } }
     }
@@ -346,7 +380,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func position() {
         guard let screen = NSScreen.screens.first(where: { $0.safeAreaInsets.top > 0 }) ?? NSScreen.main else { return }
         let hasLevels = !(model.device?.levels.fields.isEmpty ?? true)
-        let height: CGFloat = model.expanded ? (hasLevels ? 485 : 420) : 60
+        let height: CGFloat = model.expanded ? (hasLevels ? 425 : 350) : 60
         // Below the physical notch so no text or controls are obscured by the camera.
         let top = screen.frame.maxY - max(screen.safeAreaInsets.top, 8) - 5
         let frame = NSRect(x: screen.frame.midX - 195, y: top - height, width: 390, height: height)
@@ -451,6 +485,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func alert(_ title: String, _ message: String) {
         NSApp.activate(ignoringOtherApps: true)
         let a = NSAlert(); a.messageText = title; a.informativeText = message; a.runModal()
+    }
+    @objc func checkUpdates() { updateChecker.check(manual: true) }
+    @objc func toggleUpdates(_ sender: NSMenuItem) {
+        updateChecker.toggleAutomatic(); sender.state = updateChecker.enabled ? .on : .off
     }
     @objc func quit() { NSApp.terminate(nil) }
 }

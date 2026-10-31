@@ -38,3 +38,12 @@ Les différences de firmware et de version de macOS peuvent affecter les sources
 - Vérifié sur le Mac avec la montre connectée : lancement de la version compilée, popup « Montre connectée », nom réel, pictogramme de montre et absence de champ batterie. Tests automatisés et compilation universelle arm64/x86_64 réussis.
 - À valider physiquement : cycle connexion/déconnexion, coexistence avec un casque Oraimo, sélection par le menu, import/réinitialisation de la photo, et disponibilité éventuelle de batterie par les sources existantes.
 - Les fixtures utilisent des adresses fictives. Aucun numéro de série ni adresse Bluetooth réelle n’est versionné.
+
+## Popup simplifiée et mises à jour
+
+- Vérifier la photo et le nom unique sur SpaceBuds, BoomPop et montre ; garder masqués les niveaux absents. Avec gauche/droite/boîtier, chaque valeur doit avoir son libellé.
+- Vérifier les statuts de connexion, déconnexion, batterie faible et changement de sortie audio, puis leur disparition automatique (6 / 4 / 3 secondes selon l’événement). La croix doit fermer immédiatement la popup.
+- Menu « Rechercher des mises à jour… » : avec la même version publiée, message « à jour » ; sans réseau, message d’échec. Le mode automatique doit rester silencieux en cas d’échec.
+- Pour tester une vraie version plus récente sans publier de fausse release, compiler une copie temporaire avec un CFBundleShortVersionString inférieur à la release publique. Vérifier « Télécharger » (DMG du dépôt officiel), « Plus tard », « Ignorer cette version » et l’absence d’alertes automatiques répétées pour cette version. Une vérification manuelle doit pouvoir reproposer la version ignorée.
+- Désactiver la vérification automatique dans le menu : aucune requête automatique au prochain lancement. La vérification manuelle doit fonctionner.
+- La v0.2.0 ne possède pas ce mécanisme : ses utilisateurs doivent installer une première fois une version contenant cette fonction.
