@@ -21,7 +21,7 @@ Oraimo Island reconnaît les appareils Oraimo appairés à ton Mac et affiche un
 
 - **À la connexion** : popup pendant environ **6 secondes**, puis seule l’icône reste dans la barre des menus.
 - **À la déconnexion** : message pendant environ **4 secondes**, puis l’icône disparaît si aucun Oraimo n’est connecté. La surveillance continue en arrière-plan.
-- **Présentation adaptée** : écouteurs pour SpaceBuds Lite 2 ; casque pour BoomPop Pro ; pictogramme de montre pour Watch 6 Nano.
+- **Présentation adaptée** : écouteurs pour SpaceBuds Lite 2 et SpaceBuds Neo ; casque pour BoomPop Pro ; pictogramme de montre pour Watch 6 Nano.
 - **Batteries indépendantes** : une mesure d’un appareil n’est jamais réutilisée pour l’autre. Les valeurs inconnues restent masquées.
 - **Menu discret** : afficher la popup, choisir l’appareil, personnaliser sa photo, consulter le diagnostic ou quitter.
 
@@ -41,6 +41,7 @@ Il s’agit d’une app de barre des menus : **aucune fenêtre principale ni ic�
 | Système | **macOS 14 Sonoma ou plus récent** |
 | Processeur | **Apple Silicon et Intel**, même DMG universel |
 | Modèles testés | **oraimo SpaceBuds Lite 2** et **oraimo BoomPop Pro** |
+| SpaceBuds Neo | Reconnaissance du nom « oraimo SpaceBuds Neo » ; batterie globale lue dans le rapport système |
 | Watch 6 Nano (OSW-807N) | Reconnaissance du nom « oraimo Watch 6 Nano », y compris son suffixe ; batterie non confirmée |
 | Autres Oraimo | Détection par nom contenant « oraimo » ; présentation générique pour les modèles non reconnus |
 | Machine sans encoche | Compatible : popup centrée en haut de l’écran |
@@ -74,7 +75,7 @@ Voir la [procédure officielle Apple](https://support.apple.com/fr-fr/102445). U
 
 ## Utilisation quotidienne
 
-Tu peux laisser l’app ouverte en arrière-plan. Quand un Oraimo est connecté, clique sur son icône dans la barre des menus pour accéder au menu. Le pictogramme suit le modèle affiché : casque ou écouteurs.
+Tu peux laisser l’app ouverte en arrière-plan. Quand un Oraimo est connecté, clique sur son icône dans la barre des menus pour accéder au menu. Le pictogramme suit le modèle affiché : casque, écouteurs ou montre.
 
 Si aucun appareil n’est connecté, l’icône est volontairement cachée. Pour retrouver la popup, **rouvre Oraimo Island depuis Applications** ; cela ne crée pas une seconde instance.
 

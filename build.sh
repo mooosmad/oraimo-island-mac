@@ -11,7 +11,7 @@ mkdir -p "$BUILD_DIR" "$DIST_DIR" "$CACHE"
 for ARCH in arm64 x86_64; do
   echo "Compilation $ARCH (macOS $MIN_OS+)"
   xcrun swiftc -module-cache-path "$CACHE" -sdk "$SDK" -target "$ARCH-apple-macosx$MIN_OS" \
-    -swift-version 5 -O "$ROOT/Sources/OraimoProduct.swift" "$ROOT/Sources/BatteryData.swift" "$ROOT/Sources/main.swift" \
+    -swift-version 5 -O "$ROOT/Sources/OraimoProduct.swift" "$ROOT/Sources/BatteryData.swift" "$ROOT/Sources/DeviceState.swift" "$ROOT/Sources/main.swift" \
     -framework AppKit -framework SwiftUI -framework IOBluetooth -framework CoreBluetooth -framework CoreAudio \
     -o "$BUILD_DIR/OraimoIsland-$ARCH"
 done
