@@ -249,7 +249,7 @@ struct IslandView: View {
                         HStack(spacing: 22) {
                             ForEach(Array(fields.enumerated()), id: \.offset) { _, entry in
                                 VStack(spacing: 7) {
-                                    if fields.count > 1 { Text(entry.0).font(.system(size: 9, weight: .medium)).tracking(1).foregroundStyle(.gray) }
+                                    if fields.count > 1 || entry.0 != "BATTERIE" { Text(entry.0).font(.system(size: 9, weight: .medium)).tracking(1).foregroundStyle(.gray) }
                                     HStack(spacing: 10) {
                                         ZStack {
                                             Circle().stroke((entry.1 <= 20 ? Color.red : Color.green).opacity(0.18), lineWidth: 2.5)
