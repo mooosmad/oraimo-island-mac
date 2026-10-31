@@ -6,17 +6,6 @@ import CoreAudio
 import UniformTypeIdentifiers
 import ObjectiveC.runtime
 
-struct DeviceSnapshot: Equatable {
-    var name: String
-    var connected: Bool
-    var battery: Int?
-    var caseBattery: Int? = nil
-    var leftBattery: Int? = nil
-    var rightBattery: Int? = nil
-    var address: String = ""
-    var levels: BatteryValues { BatteryValues(main: battery, left: leftBattery, right: rightBattery, caseLevel: caseBattery) }
-}
-
 // Guarded read-only bridge. Selectors and ABI observed in this machine's framework.
 // Zero is conservatively unknown here: these private getters can default to zero.
 func privateBattery(_ device: IOBluetoothDevice, _ name: String) -> Int? {
@@ -74,17 +63,19 @@ final class BluetoothMonitor: NSObject, CBCentralManagerDelegate, CBPeripheralDe
                 leftBattery: reported?.left ?? privateBattery(d, "batteryPercentLeft"),
                 rightBattery: reported?.right ?? privateBattery(d, "batteryPercentRight"), address: id)
         }
+        selectedAddress = DeviceSelection.validSelection(selectedAddress, in: inventory)
+        let connectedAddresses = Set(inventory.filter { $0.connected }.map { $0.address })
+        peripheralOwners = peripheralOwners.filter { connectedAddresses.contains($0.value) }
+        peripherals = peripherals.filter { peripheralOwners[$0.key] != nil }
         if inventory != previousInventory {
             previousInventory = inventory
             onInventoryChange?(inventory)
         }
         let route = Self.outputName()
-        let current = inventory.first(where: { $0.address == selectedAddress })
-            ?? inventory.first(where: { $0.connected && $0.name.caseInsensitiveCompare(route) == .orderedSame })
-            ?? inventory.first(where: { $0.connected }) ?? inventory.first
+        let current = DeviceSelection.current(in: inventory, selected: selectedAddress, route: route, previous: last?.address)
         if current != last { last = current; onChange?(current) }
-        system.refresh()
-        if inventory.contains(where: { $0.connected }), central.state == .poweredOn,
+        if !connectedAddresses.isEmpty { system.refresh() }
+        if !connectedAddresses.isEmpty, central.state == .poweredOn,
            Date().timeIntervalSince(lastBatteryRead) > 60 {
             lastBatteryRead = Date()
             for p in central.retrieveConnectedPeripherals(withServices: [CBUUID(string: "180F")]) { inspect(p) }
@@ -117,9 +108,8 @@ final class BluetoothMonitor: NSObject, CBCentralManagerDelegate, CBPeripheralDe
         if p.state == .connected { inspect(p) }
     }
     func inspect(_ p: CBPeripheral) {
-        guard let name = p.name,
-              let owner = inventory.first(where: { $0.connected && $0.name.caseInsensitiveCompare(name) == .orderedSame }) else { return }
-        peripherals[p.identifier] = p; peripheralOwners[p.identifier] = owner.address
+        guard let name = p.name, let owner = DeviceSelection.bleOwner(named: name, in: inventory) else { return }
+        peripherals[p.identifier] = p; peripheralOwners[p.identifier] = owner
         p.delegate = self; p.discoverServices([CBUUID(string: "180F")])
     }
     func peripheral(_ p: CBPeripheral, didDiscoverServices error: Error?) {
@@ -137,7 +127,7 @@ final class BluetoothMonitor: NSObject, CBCentralManagerDelegate, CBPeripheralDe
     }
     func peripheral(_ p: CBPeripheral, didUpdateValueFor c: CBCharacteristic, error: Error?) {
         guard error == nil, c.uuid == CBUUID(string: "2A19"), let n = c.value?.first, n <= 100,
-              let owner = peripheralOwners[p.identifier], inventory.contains(where: { $0.address == owner && $0.connected }) else { return }
+              let owner = peripheralOwners[p.identifier], DeviceSelection.bleOwner(named: p.name ?? "", in: inventory) == owner else { return }
         // Do not label multiple service instances as left/right without a decoded descriptor.
         guard p.services?.filter({ $0.uuid == CBUUID(string: "180F") }).count == 1 else {
             probeSummary = "BLE : plusieurs batteries trouvées, côtés non identifiés"; return
@@ -164,7 +154,6 @@ final class IslandModel: ObservableObject {
     @Published var photo: NSImage?
     @Published var preview = false
     var product: OraimoProduct { OraimoProduct(name: device?.name ?? "") }
-    var batteryLabel: String { device?.battery.map { "\($0) %" } ?? "Non disponible" }
     var connected: Bool { device?.connected == true }
 }
 
@@ -228,7 +217,7 @@ struct IslandView: View {
                 VStack(spacing: 7) {
                     if let photo = model.photo {
                         Image(nsImage: photo).resizable().scaledToFit().frame(width: 270, height: 220).accessibilityLabel(model.product.photoDescription)
-                    } else if model.product == .spaceBuds {
+                    } else if model.product.isEarbuds {
                         CaseArt()
                     } else {
                         Image(systemName: model.product.symbol)
@@ -279,7 +268,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var status: NSStatusItem!
     let devicesMenu = NSMenu()
     var collapseTask: DispatchWorkItem?
-    var lowBatteryWarned = false
+    var lowBattery = LowBatteryAlert()
     var screenObserver: NSObjectProtocol?
     var presentationGeneration = 0
     var customPhotoURL: URL {
@@ -291,7 +280,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = true
         panel.level = .statusBar; panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.isMovableByWindowBackground = false; panel.hidesOnDeactivate = false
-        panel.contentView = NSHostingView(rootView: IslandView(model: model, toggle: { [weak self] in self?.toggle() }, dismiss: { [weak self] in self?.collapse() }))
+        panel.contentView = NSHostingView(rootView: IslandView(model: model, toggle: { [weak self] in self?.toggle() }, dismiss: { [weak self] in self?.collapse() })
+            .frame(maxHeight: .infinity, alignment: .top))
         loadPhoto()
         status = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         status.isVisible = false
@@ -335,22 +325,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let wasConnected = model.connected
         let previousProduct = model.product
         let changedIdentity = model.device?.address != snapshot?.address
-        if changedIdentity { lowBatteryWarned = false }
+        if changedIdentity { lowBattery.reset() }
         model.device = snapshot
         if changedIdentity || previousProduct != model.product { loadPhoto() }
         refreshStatus(monitor.inventory)
-        if panel.isVisible { position() }; model.preview = false; model.route = BluetoothMonitor.outputName()
-        model.headline = snapshot?.connected == true ? model.product.connectionHeadline : model.product.disconnectionHeadline
-        if model.connected && (!wasConnected || changedIdentity) { present(expanded: true); scheduleDismiss(after: 6) }
-        else if !model.connected && wasConnected {
-            lowBatteryWarned = false; present(expanded: false)
-            scheduleDismiss(after: 4)
+        if panel.isVisible { position() }; model.route = BluetoothMonitor.outputName()
+        if model.connected && (!wasConnected || changedIdentity) {
+            model.preview = false; model.headline = model.product.connectionHeadline
+            present(expanded: true); scheduleDismiss(after: 6)
+        } else if !model.connected && wasConnected {
+            lowBattery.reset(); model.preview = false; model.headline = model.product.disconnectionHeadline
+            present(expanded: false); scheduleDismiss(after: 4)
         }
-        if let battery = snapshot?.battery {
-            if battery > 20 { lowBatteryWarned = false }
-            if battery <= 20 && !lowBatteryWarned {
-                lowBatteryWarned = true; model.headline = "Batterie faible · \(battery) %"; present(expanded: false); scheduleDismiss(after: 4)
-            }
+        let level = model.connected ? snapshot?.lowestListeningLevel : nil
+        if let level, lowBattery.shouldWarn(level: level) {
+            model.headline = "Batterie faible · \(level) %"
+            if !(panel.isVisible && model.expanded) { present(expanded: false); scheduleDismiss(after: 4) }
         }
     }
     func position() {

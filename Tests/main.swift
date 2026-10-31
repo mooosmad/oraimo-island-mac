@@ -39,3 +39,43 @@ check(watchReport["aabbcc000002"]?.main == 70, "Headset battery remains isolated
 let chargedWatchFixture = String(data: watchFixture, encoding: .utf8)!.replacingOccurrences(of: "\"device_minorType\":\"Watch\"", with: "\"device_batteryLevelMain\":\"0%\",\"device_minorType\":\"Watch\"")
 check(BatteryValues.parseProfiler(Data(chargedWatchFixture.utf8))["aabbcc000001"]?.main == 0, "Explicit watch zero remains a valid measurement")
 print("PASS: Watch 6 Nano recognition, presentation, missing battery and Oraimo-only isolation")
+
+check(OraimoProduct(name: "oraimo SpaceBuds Neo") == .spaceBudsNeo, "SpaceBuds Neo recognition")
+check(OraimoProduct(name: "ORAIMO SPACEBUDS NEO_1A2B") == .spaceBudsNeo, "SpaceBuds Neo suffix and case")
+check(OraimoProduct(name: "oraimo SpaceBuds Neoplus") != .spaceBudsNeo, "Do not recognize another Neo variant")
+check(OraimoProduct(name: "oraimo SpaceBuds Lite 2") == .spaceBuds, "Lite 2 is not mistaken for Neo")
+check(OraimoProduct.spaceBudsNeo.symbol == "earbuds" && OraimoProduct.spaceBudsNeo.isEarbuds, "SpaceBuds Neo earbuds presentation")
+check(OraimoProduct.spaceBudsNeo.asset != OraimoProduct.spaceBuds.asset, "Neo photo independent of Lite 2")
+check(!OraimoProduct.boomPop.isEarbuds && !OraimoProduct.watch6Nano.isEarbuds, "Only earbuds use the case illustration")
+let neoFixture = #"{"SPBluetoothDataType":[{"device_connected":[{"oraimo SpaceBuds Neo":{"device_address":"AA:BB:CC:00:00:10","device_batteryLevelMain":"100 %","device_minorType":"Headset","device_productID":"0x000A","device_vendorID":"0x05D6"}}],"device_not_connected":[{"oraimo BoomPop Pro":{"device_address":"AA:BB:CC:00:00:11","device_productID":"0x000A","device_vendorID":"0x05D6"}}]}]}"#.data(using: .utf8)!
+check(BatteryValues.parseProfiler(neoFixture) == ["aabbcc000010": BatteryValues(main: 100)], "SpaceBuds Neo system battery, BoomPop sharing its IDs ignored")
+print("PASS: SpaceBuds Neo recognition, presentation and system battery")
+
+let buds = DeviceSnapshot(name: "oraimo SpaceBuds Neo", connected: true, battery: 80, address: "a1")
+let watch = DeviceSnapshot(name: "oraimo Watch 6 Nano", connected: true, battery: nil, address: "b2")
+let oldHeadset = DeviceSnapshot(name: "oraimo BoomPop Pro", connected: false, battery: nil, address: "c3")
+check(DeviceSelection.current(in: [oldHeadset, buds, watch], selected: "b2", route: "oraimo SpaceBuds Neo", previous: nil)?.address == "b2", "Manual selection wins while connected")
+check(DeviceSelection.current(in: [oldHeadset, buds, watch], selected: nil, route: "oraimo SpaceBuds Neo", previous: "b2")?.address == "a1", "Audio route wins in automatic mode")
+check(DeviceSelection.current(in: [oldHeadset, buds, watch], selected: nil, route: "MacBook Speakers", previous: "b2")?.address == "b2", "Automatic choice stays stable")
+var watchOff = watch; watchOff.connected = false
+check(DeviceSelection.current(in: [oldHeadset, buds, watchOff], selected: "b2", route: "", previous: "b2")?.address == "a1", "Disconnected selection does not hide a connected device")
+var budsOff = buds; budsOff.connected = false; budsOff.battery = nil
+check(DeviceSelection.current(in: [oldHeadset, budsOff], selected: nil, route: "", previous: "a1")?.address == "a1", "Disconnection message names the device that left")
+check(DeviceSelection.validSelection("zz", in: [buds]) == nil && DeviceSelection.validSelection("a1", in: [budsOff]) == "a1", "Unpaired selection falls back to automatic")
+print("PASS: device selection, audio route, stability and disconnection identity")
+
+let twin = DeviceSnapshot(name: "OraIMO SpaceBuds Neo", connected: true, battery: nil, address: "d4")
+check(DeviceSelection.bleOwner(named: "oraimo SpaceBuds Neo", in: [buds, watch]) == "a1", "Unique BLE name maps to its device")
+check(DeviceSelection.bleOwner(named: "oraimo SpaceBuds Neo", in: [buds, twin]) == nil, "Homonyms never share a BLE reading")
+check(DeviceSelection.bleOwner(named: "oraimo SpaceBuds Neo", in: [budsOff]) == nil, "Disconnected device cannot own a BLE reading")
+print("PASS: BLE ownership with homonyms")
+
+check(DeviceSnapshot(name: "x", connected: true, battery: 60, caseBattery: 3, leftBattery: 15, rightBattery: 40).lowestListeningLevel == 15, "Low battery uses the lowest earbud, not the case")
+check(DeviceSnapshot(name: "x", connected: true, battery: nil, caseBattery: 5).lowestListeningLevel == nil, "Case alone does not trigger a warning")
+var alert = LowBatteryAlert()
+check(!alert.shouldWarn(level: nil) && !alert.shouldWarn(level: 21), "No warning above threshold or without level")
+check(alert.shouldWarn(level: 20) && !alert.shouldWarn(level: 18), "Warn once at threshold")
+check(!alert.shouldWarn(level: 50) && alert.shouldWarn(level: 10), "Warn again after recharge")
+alert.reset()
+check(alert.shouldWarn(level: 10), "Reset re-arms the warning")
+print("PASS: low battery threshold, earbuds minimum and re-arming")

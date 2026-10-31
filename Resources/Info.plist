@@ -24,8 +24,6 @@
 	<true/>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Oraimo Island détecte tes appareils Oraimo et lit leur batterie lorsqu’ils exposent le service Bluetooth standard.</string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Lire la batterie de tes appareils Oraimo.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 </dict>
