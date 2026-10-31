@@ -363,6 +363,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self.present(expanded: false); self.scheduleDismiss(after: 3)
             }
         }
+        updateChecker.onAvailabilityChange = { [weak self] in
+            guard let self else { return }; self.refreshStatus(self.monitor.inventory)
+        }
         monitor.poll()
         updateChecker.start()
         if CommandLine.arguments.contains("--preview") { preview() }
@@ -382,6 +385,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if panel.isVisible { position() }; model.route = BluetoothMonitor.outputName()
         if model.connected && (!wasConnected || changedIdentity) {
             model.preview = false; model.headline = model.product.connectionHeadline
+            updateChecker.deviceConnected()
             connectionPresentation.connected(at: ProcessInfo.processInfo.systemUptime)
             present(expanded: true); scheduleDismiss(after: 6)
             if model.route.caseInsensitiveCompare(snapshot?.name ?? "") == .orderedSame { scheduleAudioCompact() }
@@ -444,7 +448,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
     func toggle() { present(expanded: !model.expanded); scheduleDismiss(after: 6) }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        show(); return false
+        if updateChecker.hasUpdate { updateChecker.check(manual: true) } else { show() }; return false
     }
     @objc func show() {
         model.preview = false
@@ -469,11 +473,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func refreshStatus(_ inventory: [DeviceSnapshot]) {
         refreshDevicesMenu(inventory)
         let connected = inventory.filter { $0.connected }
-        status.isVisible = !connected.isEmpty
+        status.isVisible = !connected.isEmpty || updateChecker.hasUpdate
         let active = connected.first(where: { $0.address == model.device?.address })
             ?? connected.first(where: { $0.name.caseInsensitiveCompare(BluetoothMonitor.outputName()) == .orderedSame })
             ?? connected.first
-        guard let active else { return }
+        guard let active else {
+            status.button?.image = NSImage(systemSymbolName: "arrow.down.circle", accessibilityDescription: "Mise à jour disponible")
+            status.button?.toolTip = "Une mise à jour Oraimo Island est disponible"
+            return
+        }
         status.button?.image = NSImage(systemSymbolName: OraimoProduct(name: active.name).symbol, accessibilityDescription: active.name)
         status.button?.toolTip = active.name + (active.battery.map { " · \($0) %" } ?? "")
     }
