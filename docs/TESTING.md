@@ -29,7 +29,7 @@ Les différences de firmware et de version de macOS peuvent affecter les sources
 
 - Diagnostic matériel du 31 octobre 2026 : SpaceBuds Neo connectés, type `Headset`, fabricant `0x05D6`, produit `0x000A`, firmware 2.4.0, `device_batteryLevelMain` à 100 %. Le BoomPop Pro annonce les mêmes identifiants : la reconnaissance repose donc sur le nom.
 - Tests automatisés : nom avec suffixe et casse, rejet des variantes voisines, distinction Lite 2 / Neo, ressources distinctes ; choix de l’appareil (sélection manuelle, sortie audio, stabilité, déconnexion) ; refus d’une lecture BLE entre homonymes ; seuil de batterie faible sur le minimum gauche/droite/global, sans le boîtier.
-- À valider physiquement : popup des SpaceBuds Neo à la connexion, illustration de boîtier, import d’une photo, alerte de batterie faible pendant la popup de connexion.
+- À valider physiquement : popup des SpaceBuds Neo à la connexion avec leur photo, import d’une photo, alerte de batterie faible pendant la popup de connexion.
 
 ## Contribution Watch 6 Nano — OSW-807N
 

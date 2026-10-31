@@ -2,7 +2,7 @@
 
 ## À venir
 
-- Reconnaissance des **oraimo SpaceBuds Neo** : pictogramme d’écouteurs, illustration de boîtier et photo personnalisable propre au modèle.
+- Reconnaissance des **oraimo SpaceBuds Neo** : photo du modèle, pictogramme d’écouteurs et photo personnalisable propre au modèle.
 - Le rapport Bluetooth de macOS n’est plus lancé toutes les 30 s quand aucun Oraimo n’est connecté.
 - L’alerte de batterie faible ne replie plus la popup de connexion et tient compte des écouteurs gauche/droite.
 - Un nouveau relevé de batterie n’écrase plus le titre affiché (« Batterie faible », « Audio sur tes Oraimo »).

@@ -6,6 +6,7 @@ Les fichiers suivants sont des images de produits fournies au projet et **ne son
 
 - `Resources/spacebuds-lite-2.png`
 - `Resources/boompop-pro.png`
+- `Resources/spacebuds-neo.png`
 - les images de produits visibles dans les captures de `docs/`
 
 Les droits de ces images restent à leurs titulaires respectifs. Leur présence dans ce dépôt ne constitue pas une autorisation générale de réutilisation. Les noms et marques Oraimo, SpaceBuds, BoomPop et Apple restent la propriété de leurs titulaires. Aucun droit sur ces marques n’est accordé par la licence du code.
