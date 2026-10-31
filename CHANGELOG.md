@@ -2,6 +2,7 @@
 
 ## À venir
 
+- Vraie icône d’application : l’ancienne `OraimoIsland.icns` n’était qu’un carré noir. Elle se régénère avec `scripts/make-icon.swift`.
 - Reconnaissance des **oraimo SpaceBuds Neo** : photo du modèle, pictogramme d’écouteurs et photo personnalisable propre au modèle.
 - Le rapport Bluetooth de macOS n’est plus lancé toutes les 30 s quand aucun Oraimo n’est connecté.
 - L’alerte de batterie faible ne replie plus la popup de connexion et tient compte des écouteurs gauche/droite.
