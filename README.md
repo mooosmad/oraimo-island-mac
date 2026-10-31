@@ -37,13 +37,13 @@ Il s’agit d’une app de barre des menus : **aucune fenêtre principale ni ic�
 
 ## Mises à jour
 
-À partir de la prochaine version intégrant cette fonction, l’app vérifie la dernière release stable publiée sur GitHub au lancement, puis au maximum une fois par jour tant qu’elle tourne. Une nouvelle version est proposée une seule fois avec **Télécharger**, **Plus tard** ou **Ignorer cette version**.
+À partir de la version **0.3.0**, l’app vérifie la dernière release stable publiée sur GitHub au lancement, puis au maximum une fois par jour tant qu’elle tourne. Une nouvelle version est proposée une seule fois avec **Télécharger**, **Plus tard** ou **Ignorer cette version**.
 
 Dans le menu Oraimo Island : **Rechercher des mises à jour…** force une vérification, même pour une version ignorée ; **Vérifier automatiquement les mises à jour** active ou désactive la vérification en arrière-plan. Le menu est accessible lorsqu’un Oraimo est connecté.
 
 Le téléchargement s’ouvre dans ton navigateur. Quitte l’app, ouvre le nouveau DMG et remplace l’app dans **Applications**, puis relance-la. L’app ne remplace jamais ses fichiers automatiquement.
 
-**Si tu utilises la v0.2.0 ou une version antérieure**, installe une première fois la nouvelle version depuis le lien du README pour bénéficier des alertes suivantes.
+**Si tu utilises la v0.2.0 ou une version antérieure**, installe une première fois la version **0.3.0 ou ultérieure** depuis le lien du README pour bénéficier des alertes suivantes.
 
 La vérification contacte l’API publique de GitHub ; aucun nom d’appareil, adresse Bluetooth ou niveau de batterie n’est envoyé. Sans réseau, les vérifications automatiques restent silencieuses ; la vérification manuelle signale l’échec.
 

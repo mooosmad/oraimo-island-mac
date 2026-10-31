@@ -1,6 +1,6 @@
 # Historique
 
-## À venir
+## 0.3.0 — 31 octobre 2026
 
 - Popup épurée : nom du produit affiché une seule fois, statut court, photo centrale et batterie sans doublon.
 - Fermeture discrète et masquage automatique conservé.
